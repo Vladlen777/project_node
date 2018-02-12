@@ -4,6 +4,8 @@ const port = 3000
 const path = require('path')
 const rp = require('request-promise')
 const exphbs = require('express-handlebars')
+const db = require('./config/db')
+const { Pool } = require('pg')
 
 app.listen(port, (err) => {
   if (err) {
@@ -28,15 +30,7 @@ app.get('/', (request, response) => {
     })
 })
 
-const { Pool } = require('pg')
-// const conString = 'postgres://postgres:hkl4d21S@localhost/node_hero'
-const pool = new Pool({
-  user: 'postgres',
-  host: 'localhost',
-  database: 'node_hero',
-  password: 'hkl4d21S',
-  port: 5432,
-})
+const pool = new Pool(db)
 
 app.get('/users', (request, response) => {
   pool.query('SELECT * FROM users')
