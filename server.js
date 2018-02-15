@@ -6,6 +6,8 @@ const rp = require('request-promise')
 const exphbs = require('express-handlebars')
 const db = require('./config/db')
 const { Pool } = require('pg')
+//const { AccountingDepartment } = require("./myclass.ts")
+//var AccDep = require('./myclass.ts').AccountingDepartment
 
 app.listen(port, (err) => {
   if (err) {
@@ -42,6 +44,29 @@ app.get('/users', (request, response) => {
     })
   })
   .catch(err => setImmediate(() => { throw err }))
+  //pool.end()
+})
+
+app.post('/users/save',  function (req, res, next) {
+  (async () => {
+    const client = await pool.connect()
+
+    try {
+      await client.query('BEGIN')
+      const { rows } = await client.query('INSERT INTO users(name, age) VALUES($1, $2) RETURNING age', ['John', 43])
+
+      // const insertPhotoText = 'INSERT INTO photos(user_id, photo_url) VALUES ($1, $2)'
+      // const insertPhotoValues = [res.rows[0].id, 's3.bucket.foo']
+      // await client.query(insertPhotoText, insertPhotoValues)
+      await client.query('COMMIT')
+    } catch (e) {
+      await client.query('ROLLBACK')
+      throw e
+    } finally {
+      client.release()
+    }
+  })().catch(e => console.error(e.stack))
+  res.sendStatus(200)
 })
 
 app.get('/:city', (req, res) => {

@@ -1,7 +1,9 @@
 $(function(){
-const button = document.querySelector('button');
+//const button = document.querySelector('button');
 const cLoadMsg = 'Обробка, почекайте будь ласка...';
-var table_users = $('#table_users');
+let table_users = $('#table_users');
+let button_load = $('#button_load');
+let button_ins = $('#button_ins');
 
 table_users.datagrid({
     method: 'get',
@@ -35,11 +37,24 @@ function PagerOption(pagerName) {
 
 PagerOption(pagerUsers);
 
-if (button) {
-    button.addEventListener('click', function() {
+if (button_load) {
+    button_load.on('click', function() {
+        //addEventListener
         //table_users.datagrid('loadData', {"total":1,"rows":[{'name': 'Сидоров Иван Степанович', 'age': 54}]});
         table_users.datagrid('reload', '/users');
 	});
 };
+
+
+button_ins.bind('click', function() {
+    $.ajax({
+        url: '/users/save',
+        type: "POST",
+        data: {name: 'John', age: 35},
+        success: function(data){
+            table_users.datagrid('reload', '/users');
+        }
+    });
+});
 
 });
